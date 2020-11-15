@@ -1,0 +1,6 @@
+Karaboga, D.: An idea based on honey bee swarm for numerical optimization. Technical report,
+Technical report-tr06, Erciyes University, Engineering Faculty, Computer Engineering Depart-
+ment (2005)
+
+
+

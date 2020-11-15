@@ -1,0 +1,5 @@
+meta-heuristic  Glover F. Future paths for integer programming and links to artificial intelligence. Comput
+Oper Res. 1986;13:533–49
+
+
+

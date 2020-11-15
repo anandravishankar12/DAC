@@ -116,7 +116,7 @@ class Core:
         if self.x_val is not None:
             fit_params['validation_data'] = (self.x_val, self.y_val)
         try:
-            model.fit(**fit_params)
+            model.fit(**fit_params, use_multiprocessing = True)
             loss, accuracy = model.evaluate(self.x_test, self.y_test, verbose=0)
         except Exception as e:
             loss, accuracy = self._handle_broken_model(model, e)
