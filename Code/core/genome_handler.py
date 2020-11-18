@@ -8,47 +8,13 @@ from keras.layers.normalization import BatchNormalization
 
 
 class GenomeHandler:
-    """
-    Defines the configuration and handles the conversion and mutation of
-    individual genomes. Should be created and passed to a `DEvol` instance.
 
-    ---
-    Genomes are represented as fixed-with lists of integers corresponding
-    to sequential layers and properties. A model with 2 convolutional layers
-    and 1 dense layer would look like:
-
-    [<conv layer><conv layer><dense layer><optimizer>]
-
-    The makeup of the convolutional layers and dense layers is defined in the
-    GenomeHandler below under self.convolutional_layer_shape and
-    self.dense_layer_shape. <optimizer> consists of just one property.
-    """
 
     def __init__(self, max_conv_layers, max_dense_layers, max_filters,
                  max_dense_nodes, input_shape, n_classes,
                  batch_normalization=True, dropout=True, max_pooling=True,
                  optimizers=None, activations=None):
-        """
-        Creates a GenomeHandler according
 
-        Args:
-            max_conv_layers: The maximum number of convolutional layers
-            max_dense_layers: The maximum number of dense (fully connected)
-                    layers, including output layer
-            max_filters: The maximum number of conv filters (feature maps) in a
-                    convolutional layer
-            max_dense_nodes: The maximum number of nodes in a dense layer
-            input_shape: The shape of the input
-            n_classes: The number of classes
-            batch_normalization (bool): whether the GP should include batch norm
-            dropout (bool): whether the GP should include dropout
-            max_pooling (bool): whether the GP should include max pooling layers
-            optimizers (list): list of optimizers to be tried by the GP. By
-                    default, the network uses Keras's built-in adam, rmsprop,
-                    adagrad, and adadelta
-            activations (list): list of activation functions to be tried by the
-                    GP. By default, relu and sigmoid.
-        """
         if max_dense_layers < 1:
             raise ValueError(
                 "At least one dense layer is required for softmax layer"
@@ -94,7 +60,7 @@ class GenomeHandler:
 
         self.convolution_layers = max_conv_layers
         self.convolution_layer_size = len(self.convolutional_layer_shape)
-        self.dense_layers = max_dense_layers - 1  # this doesn't include the softmax layer, so -1
+        self.dense_layers = max_dense_layers - 1 
         self.dense_layer_size = len(self.dense_layer_shape)
         self.input_shape = input_shape
         self.n_classes = n_classes
@@ -116,7 +82,7 @@ class GenomeHandler:
                     range_index = index % self.convolution_layer_size
                     choice_range = self.convParam(range_index)
                     genome[index] = np.random.choice(choice_range)
-                elif rand.uniform(0, 1) <= 0.01:  # randomly flip deactivated layers
+                elif rand.uniform(0, 1) <= 0.01:
                     genome[index - index % self.convolution_layer_size] = 1
             elif index != len(genome) - 1:
                 offset = self.convolution_layer_size * self.convolution_layers
@@ -139,7 +105,7 @@ class GenomeHandler:
         dim = 0
         offset = 0
         if self.convolution_layers > 0:
-            dim = min(self.input_shape[:-1])  # keep track of smallest dimension
+            dim = min(self.input_shape[:-1])
         input_layer = True
         for i in range(self.convolution_layers):
             if genome[offset]:
@@ -162,7 +128,7 @@ class GenomeHandler:
                 model.add(Activation(self.activation[genome[offset + 3]]))
                 model.add(Dropout(float(genome[offset + 4] / 20.0)))
                 max_pooling_type = genome[offset + 5]
-                # must be large enough for a convolution
+                
                 if max_pooling_type == 1 and dim >= 5:
                     model.add(MaxPooling2D(pool_size=(2, 2), padding="same"))
                     dim = int(math.ceil(dim / 2))

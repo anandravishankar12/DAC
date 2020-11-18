@@ -44,7 +44,7 @@ else:
 
 
     genome_handler = GenomeHandler(max_conv_layers=6, 
-                                max_dense_layers=2,
+                                max_dense_layers=4,
                                 max_filters=256,
                                 max_dense_nodes=1024,
                                 input_shape=x_train.shape[1:],
