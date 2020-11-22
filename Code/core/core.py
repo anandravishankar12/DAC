@@ -12,6 +12,8 @@ from keras.models import load_model
 import keras.backend as K
 from sklearn.metrics import log_loss
 import numpy as np
+import keras
+import tensorboard
 
 if K.backend() == 'tensorflow':
     import tensorflow as tf
@@ -100,6 +102,11 @@ class Core:
         return members
 
     def _evaluate(self, genome, epochs):
+        logs = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+
+        tboard_callback = tf.keras.callbacks.TensorBoard(log_dir = logs,
+                                                 histogram_freq = 1,
+                                                 profile_batch = '500,520')
         model = self.genome_handler.decode(genome)
         loss, accuracy = None, None
         fit_params = {
@@ -108,15 +115,15 @@ class Core:
             'validation_split': 0.1,
             'epochs': epochs,
             'verbose': 1,
-            'callbacks': [
-                EarlyStopping(monitor='val_loss', patience=1, verbose=1)
-            ]
+            'callbacks': [tboard_callback]
         }
+        
 
         if self.x_val is not None:
             fit_params['validation_data'] = (self.x_val, self.y_val)
+        model.fit(**fit_params, use_multiprocessing = True)
         try:
-            model.fit(**fit_params, use_multiprocessing = True)
+            
             loss, accuracy = model.evaluate(self.x_test, self.y_test, verbose=0)
         except Exception as e:
             loss, accuracy = self._handle_broken_model(model, e)

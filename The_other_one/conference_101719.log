@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.14)  17 NOV 2020 15:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.14)  22 NOV 2020 16:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -303,7 +303,37 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 53.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
+) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
+
+
+]
+<part1.png, id=12, 514.92375pt x 443.6575pt>
+File: part1.png Graphic file (type png)
+<use part1.png>
+Package pdftex.def Info: part1.png  used on input line 108.
+(pdftex.def)             Requested size: 142.26378pt x 122.57144pt.
+ [2]
+<part2.png, id=18, 738.76pt x 693.59125pt>
+File: part2.png Graphic file (type png)
+<use part2.png>
+Package pdftex.def Info: part2.png  used on input line 130.
+(pdftex.def)             Requested size: 241.84842pt x 227.0549pt.
+<part3.png, id=19, 900.36375pt x 451.6875pt>
+File: part3.png Graphic file (type png)
+<use part3.png>
+Package pdftex.def Info: part3.png  used on input line 138.
+(pdftex.def)             Requested size: 241.84842pt x 121.32317pt.
+ [3 <./part1.png> <./part2.png> <./part3.png>]
+Underfull \hbox (badness 4156) in paragraph at lines 229--230
+[]\OT1/ptm/m/n/8 Clifford Broni-Bediako, Yuki Mu-rata, Luiz Hen-rique Mormille,
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 234--235
+\OT1/ptm/m/n/8 Zero: Evolv-ing Ma-chine Learn-ing Al-go-rithms From Scratch,
+ []
+
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -315,28 +345,32 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
-
-
+[4
 
 ] (./conference_101719.aux) ) 
 Here is how much of TeX's memory you used:
- 3830 strings out of 481239
- 54783 string characters out of 5920376
- 299298 words of memory out of 5000000
- 19074 multiletter control sequences out of 15000+600000
- 567037 words of font info for 89 fonts, out of 8000000 for 9000
+ 3884 strings out of 481239
+ 55279 string characters out of 5920376
+ 304405 words of memory out of 5000000
+ 19122 multiletter control sequences out of 15000+600000
+ 570950 words of font info for 99 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 30i,11n,37p,1042b,304s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 30i,11n,37p,1141b,304s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/bas
-e/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/
-share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/
-texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/font
-s/type1/urw/times/utmri8a.pfb>
-Output written on conference_101719.pdf (1 page, 45811 bytes).
+e/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/
+utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on conference_101719.pdf (4 pages, 204115 bytes).
 PDF statistics:
- 25 PDF objects out of 1000 (max. 8388607)
- 17 compressed objects within 1 object stream
+ 69 PDF objects out of 1000 (max. 8388607)
+ 45 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from keras.datasets import mnist
+from keras.datasets import mnist, cifar10
 from keras.utils.np_utils import to_categorical
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential 
@@ -35,6 +35,7 @@ if (query == "Private"):
 
 else:
     print("Private Dataset not provided, using MNIST/CIFAR10/CIFAR100")
+    
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train = x_train.reshape(x_train.shape[0], 28, 28, 1).astype('float32') / 255
     x_test = x_test.reshape(x_test.shape[0], 28, 28, 1).astype('float32') / 255

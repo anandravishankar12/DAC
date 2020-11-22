@@ -66,11 +66,91 @@ component, formatting, style, styling, insert
 
 \section{Introduction}
 
+Deep Neural Networks (DNNs) are parallel computational structures used for implementation of static and dynamic systems through a process of understanding the problem stated rather than memorizing the input-output relation.    
+The steady rise in DNNs popularity can be attributed to the influx of new architectures such as AlexNet\cite{AlexNet}, ResNet\cite{ResNet}, VGG\cite{VGG} and LSTM\cite{LSTM} among others along with a surge in hardware specifically designed for parallel computation such as GPUs, ASICs and FPGAs. Moreover, the algorithms governing the functionalities of the different neural networks have a strong underlying mathematical foundation which has only reinforced over the years with Improved Back-Propogation \cite{IBP} and Conjugate Gradient Algorithm \cite{CGA} being prime examples. The performance (P) of a DNN can be expressed as a function of three main factors: network architecture (A), network parameter set (NP) and knowledge representation of the data provided (K).
 
+\begin{equation}
+P = \textit{f}(A, N\textsubscript{\textit{P}}, K) \label{performance}
+\end{equation}
+
+Much empahsis has been placed on developing new algorithms and programming paradigms for modifying the network parameters to improve the performance. This overwhelming infatuation has often undermined the importance of network architecture selection and its association with the problem statement provided. Given no prior knowledge, the network architecture search (NAS) process has been a trivial trail and error process which is painstakingly human. Moreover, given a network architecture and an optimized parameter set, the configuration stands good only for a given dataset and does not account for an online model with wild flucuations in the admitted dataset. Modern NAS techniques can be subdivided into Reinforcement Learning based, such as \cite{RLNAS1} and \cite{RLNAS2}, Evolutionary Techniques, such as \cite{ENAS}, and Gradient based Techniques, such as \cite{GNAS}. RL techniques suffer a high computational cost for combing through the entire search space and adapting to the environment, which Gradient based techniques are not adaptive in nature and hence cannot be fit onto an online model.  
+
+Applying a random search on network architectures, would be time consuming and computationally expensive as the total number of configurations grows exponentially with even minor changes to the architecture. Recent advances in hardware has increased the speed of applications with inherent parallelism such as DNNs and Genetic Programming (GP) as multiple threads of execution cooperate to complete the work in a shorter time frame. Programming models like MPI and CUDA were developed to translate optimized data transfer operations and its overlap with I/O operations from a logical view point to an implementation format.
+
+In this paper we present a dynamic end-to-end framework composed of intelligent subsystems, each one tackling one aspect of a network's performance stated in Equation $\ref{performance}$ to overcome the aforementioned shortcomings. The key features of our framework are, 
+
+\begin{itemize}
+\item Data Aware Model Selection: A robust subsystem accepts the data either in the form of a single file or a directory and analyses it, based on various signals such as temporal difference, spatial difference, dimensionality analysis and data format. The queued data is assigned flags based on the signal results obtained. The data is parsed through an optimized scheduler which seeks to limit the time difference between successive data admissions which leads to increased throughput.  
+\item Pattern Aware Pruning: After selecting a base model for the task, genetic programming is introduced to grow out the model to its optimal structure. In order to limit the growth of the weight matrix, pruning was applied to the genetic tree so formed. The pruning areas were determined by applying Markov chain analysis to the search pattern and the corresponding pobabilistic states. 
+\item Layer-wise Competition: For each layer, multiple instances were created and the fitness of each instance is evaluated after every iteration. The NAS process was shifted away from an accuracy-driven model and more emphasis was given to individual contribution of each instance. Back-propogation algorithm was used to fine tune the model and create a environment where multiple instances of the same layer are forced to compete against each other. 
+\end{itemize}
 
 \section{Related Work}
 
+Recent efforts of integrating multi-disciplinary algorithms with NAS has given rise to a copius amount of techniques to automate the search process. As mentioned previously, the efforts can be broadly classified as Reinforcement Learning based, Evolutionary algorithm based and Gradient based techniques. Reinforcement Learning based techniques treats the entire search space as a learning environment with parameter matrix of each layer's instance having either a positive or negative feedback. An external agent is employed to roam the search space and learn the environment based on a pre-decided reward system. Evolutionary algorithms can be further sub-classified into Evolutionary programming and Genetic Programming. Both paradigms attempt to emulate Drawin theory of evolution from different approaches with the help of genetic operators such as selection, crossover and mutation. Gradient based techniques utilize the gradient descent algorithm to test the goodness-of-fit of each applicable layer parameter.  
+
+\begin{itemize}
+\item Reinforcement Learning based: In \cite{RWRL1} the authors generate high-performing CNN architectures for a given learning task using Q-learning with an $\epsilon$-greedy exploration strategy and experience replay; In \cite{RWRL2} the authors formulate the NAS as a Markov decision process which enables a more effective RL-based search. The samples generated by the previous policies are used efficiently for an off-policy GAN search algorithm.
+\item Evolutionary based: In \cite{EA1} the authors construct a simplified supernet where all architectures are single paths which solves the weight co-adaption problem. Conduction of the search process in complex environments under multiple constraints is cnoducted seamlessly through uniform path sampling. In \cite{EA2} evolved machine learning algorithms are created from scratch. They apply evolutionary concepts on top of top algorithms such as bilinear interactions, normalized gradients, and weight averaging. 
+\item Gradient based: Using Gradient descent offers a big advantage in terms of reduced GPU-hours as shown by \cite{GD1}. The entire search space is represented in the form of directed acyclic graphs each one of which constitutes a possible network architecture. A differential sampler is then trained through gradient descent which optimizes the learning process. The resultant network took only 4 GPU hours with a test error of 2.82\%. Another method involved optimizing the network configuration through stochastic relaxation as shown by \cite{GD2}. The authors apply gradient descent technique with adaptive step-size method for low cost computations.    
+
+Techniques to train the weight matrix of a nerual network were dominated by variants of gradient descent algorithms during the early years of DNNs. Slowing genetic operations were introduced into the process of training the DNN. These operations provide a global search with the added advantage of loval minima avoidance. In \cite{lund} a GA is used to evolve ecological neural networks that can adapt to their changing environment. This is achieved by letting the fitness function, which in this case is seen as individual for every gene, co-evolve with the weights of the network.
+
+n \cite{hass} and \cite{munro}, a genetic algorithm is used on a fixed three layer feedforward network to find the optimal mapping from the input to the hidden layer (i.e. the set of optimal hidden targets). In the evaluation phase, the weights from the hidden to the output layer are learned using a simple supervised gradient descent rule. The search space is not the weight space but the hidden target space.
+\end{itemize}
 \section{Co-Evolutionary Model+Architecture Search}
+
+In this section we dicuss the model selection process along with the co-evolutionary architecture search process and the corresponding GPU partioning of the training phase. The goal of developing an end-to-end framework consists of three main components, each one focusing on one aspect of optimizing the performance of a neural network. An additional component in the form of GPU implementation is added to provide a comparative study and to speed up the co-evolutionary NAS training proccess. Note that a GPU-partitioned architecture has fewer weights because not all layers have interconnections. Dropping some of the interconnections reduces the communication time between the processors and therefore helps in efficiency.
+
+\subsection{Base Model Selection}
+The overview of the model selection process is shown in Figure $\ref{part1}$.
+\begin{figure}[!b]
+\centerline{\includegraphics[width=50mm]{part1.png}}
+\caption{Base Model Selection}
+\label{part1}
+\end{figure}
+
+A central data repository is created for data admission and for each data entry flags are initialised as null vectors. Depending on the workload provided, each entry is scheduled as a job and sequenced for processing. A non-preemtive approach is applied to the scheduling task for higher throughput and low scheduling overhead. Once the jobs are optimally sequenced, they pass through a set of filters. These filters provide information about the job in terms of:
+
+\begin{itemize}
+\item Data sparsness
+\item Dimensionality
+\item Temporal dependencies
+\item Spacial dependencies
+\item Data consistency
+\end{itemize}
+
+The filtered output has a single feedback pass into the repository where the flags are updated. Based on the flag configuration, a base model is chosen and fed into the next subsystem along with the data. 
+
+\subsection{Genetic Programming based NAS and weight optimization}
+
+Once a base model such as Convolutional Neural Network (CNN) or Feed-Forward Network (FNN) is selected, genetic programming is applied to build upon the base. The general flow of this growth for a CNN is shown in Figure $\ref{part2}$. 
+
+\begin{figure}[!b]
+\centerline{\includegraphics[width=85mm]{part2.png}}
+\caption{Genetic Programming based NAS}
+\label{part2}
+\end{figure}
+
+A complementary co-dependent structure for optimising the NAS process and the weight selection is employed using structured chromosomes in the representational space. For computational purposes, an intermediate state of binary matrix encoding is introduced. A many-to-one mapping is employed between the architectural representation and the weight representation to have a two-step verification of the goodness-of-fit of the model.
+
+\begin{figure}[!b]
+\centerline{\includegraphics[width=85mm]{part3.png}}
+\caption{Many-to-one relation between NAS and weight representation}
+\label{part3}
+\end{figure}
+
+An n-dimensional matrix scheme has been implemented to represent the neural network structures in a concise manner. It encodes regularities in the connectivity matrix defining the network structure. Another added advantage of the binary representation is the translation of genetic operators as structural changes in the network which in turn depending on the chromosome layer they are acting on. In the evaluation stage of the encoding system, the generated networks are first pruned before they are trained using the back propagation module. Pruning removes neurons and the corresponding links that have no incoming or outgoing connections. It does this recursively until all such neurons have been removed.
+
+Back propagation training is performed for a predefined number of cycles, rather than the more customary process of stopping at a required error level, since network convergence is a factor of the network's configuration. The optimal number depends on the dataset provided and the train-test split set used. The back propagation module is a standard one using the normal gradient descent weight updating rule with a momentum term. The module uses a per-pattern's weight update mechanism, meaning that the weights are updated after every iteration of the training phase
+
+The fitness function used to evaluate the goodness-of-fit of the network instance is given by Equation $\ref{F}$ 
+\begin{equation}
+F = \frac{\hat{Y}-Y}{\sum_{i=0}^{N}O\textsubscript{i}} + \alpha\frac{C}{C\textsubscript{max}} + \mu P
+\label{F}
+\end{equation}
+where $\hat{Y}$ is the target variable, $Y$ is the predicted output, $O\textsubscript{i}$ is the number of output classes, $C$ is the network complexity, $C\textsubscript{max}$ is the maximum complexity, $P$ is the fraction of the network pruned, $\alpha$ is the learning rate and $\beta$ is momentum.  Note that since the fitness funciton is directly proportional to the loss, the problem of optimizing the neural network is a minimization problem rather than the usual maximization problem. 
+
 
 \section{Experimental Results}
 
@@ -137,15 +217,27 @@ component, formatting, style, styling, insert
 % \end{figure}
 
 % 
-% \begin{thebibliography}{00}
-% \bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-% \bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-% \bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-% \bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-% \bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-% \bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-% \bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
-% \end{thebibliography}
+\begin{thebibliography}{00}
+\bibitem{AlexNet} Alex Krizhevsky, Ilya Sutskever, and Geoffrey E Hinton. 2012. ImageNet Classification with Deep Convolutional Neural Networks. In NIPS. 
+\bibitem{ResNet}Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. 2016. Deep residual learning for image recognition. In CVPR.
+\bibitem{VGG} Karen Simonyan and Andrew Zisserman. 2015. Very Deep Convolutional Networks for Large-scale Image Recognition. In ICLR.
+\bibitem{LSTM} Sepp Hochreiter; Jürgen Schmidhuber (1997). "Long short-term memory". Neural Computation. 
+\bibitem{IBP} Nawi N.M., Ransing R.S., Salleh M.N.M., Ghazali R., Hamid N.A. (2010) An Improved Back Propagation Neural Network Algorithm on Classification Problems. In: Zhang Y., Cuzzocrea A., Ma J., Chung K., Arslan T., Song X. (eds) Database Theory and Application, Bio-Science and Bio-Technology. BSBT 2010, DTA 2010. Communications in Computer and Information Science, vol 118. Springer, Berlin, Heidelberg.
+\bibitem{CGA} B. Wang, B. Yang, J. Sheng, M. Chen and G. He, "An Improved Neural Network Algorithm and its Application in Sinter Cost Prediction," 2009 Second International Workshop on Knowledge Discovery and Data Mining, Moscow, 2009, pp. 112-115, doi: 10.1109/WKDD.2009.180.
+\bibitem{RLNAS1} Barret Zoph, Quoc V. Le, Neural Architecture Search with Reinforcement Learning, arXiv:1611.01578
+\bibitem{RLNAS2} H. Liu and C. Zhang, "Reinforcement Learning based Neural Architecture Search for Audio Tagging," 2020 International Joint Conference on Neural Networks (IJCNN), Glasgow, United Kingdom, 2020, pp. 1-8, doi: 10.1109/IJCNN48605.2020.9207530.
+\bibitem{ENAS} Clifford Broni-Bediako, Yuki Murata, Luiz Henrique Mormille, Masayasu Atsumi, Evolutionary NAS with Gene Expression Programming of Cellular Encoding, arXiv:2005.13110
+\bibitem{GNAS} Liam Li, Mikhail Khodak, Maria-Florina Balcan, Ameet Talwalkar, Geometry-Aware Gradient Algorithms for Neural Architecture Search, arXiv:2004.07802
+\bibitem{RWRL1} Baker B, Gupta O, Naik N, et al. Designing neural network architectures using reinforcement learning[J]. arXiv preprint arXiv:1611.02167, 2016
+\bibitem{RWRL2} Yuan Tian, Qin Wang, Zhiwu Huang, Wen Li, Dengxin Dai1, Minghao Yang, Jun Wang, and Olga Fink, Off-Policy Reinforcement Learning for Efficientand Effective GAN Architecture Search. arXiv:2007.09180
+\bibitem{EA1} Zichao Guo, Xiangyu Zhang, Haoyuan Mu, Wen Heng, Zechun Liu, Yichen Wei, Jian Sun, Single Path One-Shot Neural Architecture Search with Uniform Sampling, arXiv:1904.00420
+\bibitem{EA2} Esteban Real, Chen Liang, David R. So, Quoc V. Le, AutoML-Zero: Evolving Machine Learning Algorithms From Scratch, arXiv:2003.03384
+\bibitem{GD1} Xuanyi Dong, Yi Yang Searching for A Robust Neural Architecture in Four GPU Hours. arXiv:1910.04465
+\bibitem{GD2} Youhei Akimoto, Shinichi Shirakawa, Nozomu Yoshinari, Kento Uchida, Shota Saito, Kouhei Nishida, Adaptive Stochastic Natural Gradient Method for One-Shot Neural Architecture Search, arXiv:1905.08537
+\bibitem{lund} Lund, H.H. and Parisi, D., "Simulations with an Evolvable Fitness Formula" Technical Report PCIA-1-94, C.N.R., Rome, 1994.
+\bibitem{hass} Hassoun, M.H., Fundamentals of Artificial Neural Networks, MIT Press, 1995.
+\bibitem{munro} Munro, P.W., "Genetic Search for Optimal Representations in Neural Networks", International Conference on Artificial Neural Nets and Genetic Algorithms (ANNGA93), Innsbruck, Austria, pp. 628-634, 1993.
+\end{thebibliography}
 % \vspace{12pt}
 % \color{red}
 % IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
