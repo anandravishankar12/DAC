@@ -112,17 +112,17 @@ The overview of the model selection process is shown in Figure $\ref{part1}$.
 \label{part1}
 \end{figure}
 
-A central data repository is created for data admission and for each data entry flags are initialised as null vectors. Depending on the workload provided, each entry is scheduled as a job and sequenced for processing. A non-preemtive approach is applied to the scheduling task for higher throughput and low scheduling overhead. Once the jobs are optimally sequenced, they pass through a set of filters. These filters provide information about the job in terms of:
+A central data repository is created for data admission and for each data entry flags are initialised as null vectors. Depending on the workload provided, each entry is scheduled as a job and sequenced for processing. A non-preemtive approach is applied to the scheduling task for higher throughput and low scheduling overhead. The scheduler automates the tedious part of Machine Learning by intelligently exploring multiple pipelines to find the most apt on for the dataset provided. Once the jobs are optimally sequenced, they pass through a set of filters. These filters provide information about the job in terms of:
 
 \begin{itemize}
-\item Data sparsness
+\item Polynomial features
 \item Dimensionality
 \item Temporal dependencies
 \item Spacial dependencies
-\item Data consistency
+\item Stacking Estimation
 \end{itemize}
 
-The filtered output has a single feedback pass into the repository where the flags are updated. Based on the flag configuration, a base model is chosen and fed into the next subsystem along with the data. 
+The filtered output has a single feedback pass into the repository where the flags are updated. Based on the flag configuration, a base model is chosen and after a set number of cycles the model is fed into the next subsystem along with the data. 
 
 \subsection{Genetic Programming based NAS and weight optimization}
 
@@ -156,10 +156,10 @@ where $\hat{Y}$ is the target variable, $Y$ is the predicted output, $O\textsubs
 The most common methods for analysing genetic structures include Schema theorem, Price's theorem and building block hypothesis. The methods mentioned provide a good approximation of the genetic model and have been used often. Markov Chain analysis, however replicates an exact model of the genetic structure in a state space diagram. The models so formed provide useful insight about the effect genetic operators have on the transition matrix. The transition matrix is the binary encoded intermediatory representation of the network connections as chromosomes. 
 
 Since binary encoding was employed, the chromosomes are treated as binary strings with each gene representing "no connection" or 0 and "connection" or 1. If $N$ chromosomes of lenth $l$ are generated, the number of possible states are $N+1$. State $i$ is referred to as the state with exactly $i$ ones and $(l - i)$ zeros. The operation of the genetic algorithm is now defined by a $(l + 1)*(l + 1)$ transition matrix $P[i, j]$ that maps the current state $i$ to the next state $j$ . The probability of a transition from state $i$ to state $j$ is given by one
-entry in the matrix $p(ij)$. A smaple markov model for $l$ = 1 and $N$ = 4 is shown in Figure $\ref{part4}$.
+entry in the matrix $p(ij)$. A sample markov model for $l$ = 1 and $N$ = 4 is shown in Figure $\ref{part4}$.
 
 \begin{figure}[!b]
-\centerline{\includegraphics[width=85mm]{part4.png}}
+\centerline{\includegraphics[width=50mm]{part4.png}}
 \caption{Markov Analysis}
 \label{part4}
 \end{figure}
@@ -228,6 +228,102 @@ Prune( Connection($i_n$) $->$ ($(i+1)_n$) );
 \end{algorithm}
 
 \section{Experimental Results}
+
+In this section we describe the setup followed for conduction of our experiment and follow it up with a discussion of results and findings of similar works. The genetic programming algorithm has been implemented for the NAS process while evolutionary operators along with back propogation was used for parameter setting and network convergence. The rig setup for our expirement consisted of an Intel(R) Core(TM) Xeon Platinum E5-2682 CPU@2.50GHz with a 500 GB DDR memory. The neural network was developed through Tensorflow v2.3 and deployed on a PowerEdge R740 server with 1 NVIDIA Tesla V100-PCIe GPU card, which has 5120 CUDA cores with a peak throughput of 112 TFLOPS. The experiment was conducted on 6 public datasets: MNIST digit classification \cite{mnist}, CIFAR10, CIFAR 100 \cite{cifar}, Boston Housing price regression dataset \cite{boston}, IMDB movie review sentiment dataset \cite{IMDB} and Reuters newswire classification dataset \cite{reuters}. The network settings are described in Table $\ref{tab1}$.
+
+\begin{table}[htbp]
+\caption{Network Settings}
+\begin{center}
+\begin{tabular}{ c  c }
+\hline
+\textbf{Parameter}&\textbf{Setting}\\
+\hline
+\hline
+{Learning Rate}&{X $\in$ [0.0001-1.0]}\\
+\hline
+{Momentum}&{X $\in$ [0.0-0.9]}\\
+\hline
+{Back Propogation Cycles}&{$<$50}\\
+\hline
+{Encoding}&{Binary}\\
+\hline
+{Selection}&{Elitism}\\
+\hline
+{Mutation}&{Binary Inversion}\\
+\hline
+{Crossover}&{Single Point}\\
+\hline
+{Mutation Rate}&{X $\in$ [0.0-1.0]}\\
+\hline
+{Crossover Rate}&{X $\in$ [0.001-1.0]}\\
+\hline
+{Maximum Depth}&{5}\\
+\hline
+{Maximum Nodes}&{1024}\\
+\hline
+{$l$}&{31}\\
+\hline
+{$N$}&{10}\\
+\hline
+{Number of Generations}&{10}\\
+\hline
+{Number of epochs}&{10}\\
+\hline
+{Replacement}&{Unconditional}\\
+\hline
+% \textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
+% \cline{2-4} 
+% \textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
+% \hline
+% copy& More table copy$^{\mathrm{a}}$& &  \\
+% \hline
+% \multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+
+
+\subsubsection{Model selection}
+
+Initial expermients were conducted on text based datasets i.e, \cite{IMDB}, \cite{reuters} and \cite{boston}. The datasets were admitted one by one and the respective flags were initialized to null vectors. The filter set described in the previous section is utilized to search through the possible avenues for our data to traverse through. The dataset is passed through the filter set for 10 cycles which cements the tuning result. Note that the dataset is passed through the filters in a divided format in order to prevent oversaturation of the filter output. The number of divisions in the sampled dataset is equal to the number of cycles. The throughput percentage for text based datasets (Orange) and image based datasets (Blue) is shown in Figure $\ref{throughput_pct}$. 
+
+\begin{figure}[!b]
+\centerline{\includegraphics[width=85mm]{throughput_pct.png}}
+\caption{Throughput \% vs Number of Cycles}
+\label{throughput_pct}
+\end{figure}
+
+\subsubsection{Genetic-NAS}
+
+Both the structural part of the chromosomes and the connections use binary encoding. The coding of the structural part is, in general, non-homogeneous in that it consists of different parts each having its own gene length. These parts correspond to the rewriting rules for one or more rewriting cycles. In the present implementation only homogeneous chromosomes were used because implementing non-homogeneous chromosomes in the core genetic programming used is quite difficult. 
+
+Figures $\ref{boston}$ and $\ref{10}$ show the relation between network configuration of the image dataset and text dataset systems and their binary encoded formats. Both systems showed very similar behaviour on this problem. Convergence curves of the best individual in the population vs generation were nearly identical as shown in the Plots $\ref{conv_loss}$ and $\ref{text_loss}$.
+\begin{figure}[!b]
+\centerline{\includegraphics[width=70mm]{boston.png}}
+\caption{Boston dataset genomic encoding}
+\label{boston}
+\end{figure}
+
+\begin{figure}[!b]
+\centerline{\includegraphics[width=70mm]{cifar10.png}}
+\caption{CIFAR10 dataset genomic encoding}
+\label{10}
+\end{figure}
+
+\begin{figure}[!b]
+\centerline{\includegraphics[width=100mm]{epoch_loss.png}}
+\caption{Loss for Image based Datasets}
+\label{conv_loss}
+\end{figure}
+
+\begin{figure}[!b]
+\centerline{\includegraphics[width=100mm]{epoch_loss_2.png}}
+\caption{Loss for Text based Datasets}
+\label{text_loss}
+\end{figure}
+
+
 
 \section{Conclusion and Future Work}
 
@@ -312,6 +408,11 @@ Prune( Connection($i_n$) $->$ ($(i+1)_n$) );
 \bibitem{lund} Lund, H.H. and Parisi, D., "Simulations with an Evolvable Fitness Formula" Technical Report PCIA-1-94, C.N.R., Rome, 1994.
 \bibitem{hass} Hassoun, M.H., Fundamentals of Artificial Neural Networks, MIT Press, 1995.
 \bibitem{munro} Munro, P.W., "Genetic Search for Optimal Representations in Neural Networks", International Conference on Artificial Neural Nets and Genetic Algorithms (ANNGA93), Innsbruck, Austria, pp. 628-634, 1993.
+\bibitem{mnist} LeCun, Yann and Cortes, Corinna. "MNIST handwritten digit database." (2010): 
+\bibitem{cifar} Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009.
+\bibitem{boston} Harrison, D. and Rubinfeld, D.L. Hedonic prices and the demand for clean air, J. Environ. Economics and Management, vol.5, 81-102, 1978. 
+\bibitem{IMDB} Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. (2011). Learning Word Vectors for Sentiment Analysis. The 49th Annual Meeting of the Association for Computational Linguistics (ACL 2011).
+\bibitem{reuters} Sam Dobbins, Mike Topliss, Steve Weinstein Reuters-21578, 1987
 \end{thebibliography}
 % \vspace{12pt}
 % \color{red}
