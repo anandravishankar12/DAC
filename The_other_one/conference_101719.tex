@@ -1,3 +1,4 @@
+
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
@@ -6,6 +7,7 @@
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
+\usepackage[ruled,vlined]{algorithm2e}
 \usepackage{xcolor}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -132,17 +134,15 @@ Once a base model such as Convolutional Neural Network (CNN) or Feed-Forward Net
 \label{part2}
 \end{figure}
 
-A complementary co-dependent structure for optimising the NAS process and the weight selection is employed using structured chromosomes in the representational space. For computational purposes, an intermediate state of binary matrix encoding is introduced. A many-to-one mapping is employed between the architectural representation and the weight representation to have a two-step verification of the goodness-of-fit of the model.
+A complementary co-dependent structure for optimising the NAS process and the weight selection is employed using structured chromosomes in the representational space. For computational purposes, an intermediate state of binary matrix encoding is introduced. An n-dimensional matrix scheme has been implemented to represent the neural network structures in a concise manner. It encodes regularities in the connectivity matrix defining the network structure. Another added advantage of the binary representation is the translation of genetic operators as structural changes in the network which in turn depending on the chromosome layer they are acting on. A many-to-one mapping is employed between the architectural representation and the weight representation to have a two-step verification of the goodness-of-fit of the model as shown in Figure $\ref{part3}$.
 
 \begin{figure}[!b]
 \centerline{\includegraphics[width=85mm]{part3.png}}
 \caption{Many-to-one relation between NAS and weight representation}
 \label{part3}
 \end{figure}
-
-An n-dimensional matrix scheme has been implemented to represent the neural network structures in a concise manner. It encodes regularities in the connectivity matrix defining the network structure. Another added advantage of the binary representation is the translation of genetic operators as structural changes in the network which in turn depending on the chromosome layer they are acting on. In the evaluation stage of the encoding system, the generated networks are first pruned before they are trained using the back propagation module. Pruning removes neurons and the corresponding links that have no incoming or outgoing connections. It does this recursively until all such neurons have been removed.
-
-Back propagation training is performed for a predefined number of cycles, rather than the more customary process of stopping at a required error level, since network convergence is a factor of the network's configuration. The optimal number depends on the dataset provided and the train-test split set used. The back propagation module is a standard one using the normal gradient descent weight updating rule with a momentum term. The module uses a per-pattern's weight update mechanism, meaning that the weights are updated after every iteration of the training phase
+\subsubsection{Pruning}
+In the evaluation stage of the encoding system, the generated networks are first pruned before they are trained using the back propagation module. Pruning removes neurons and the corresponding links that have no incoming or outgoing connections. It does this recursively until all such neurons have been removed. Back propagation training is performed for a predefined number of cycles, rather than the more customary process of stopping at a required error level, since network convergence is a factor of the network's configuration. The optimal number depends on the dataset provided and the train-test split set used. The back propagation module is a standard one using the normal gradient descent weight updating rule with a momentum term. The module uses a per-pattern's weight update mechanism, meaning that the weights are updated after every iteration of the training phase
 
 The fitness function used to evaluate the goodness-of-fit of the network instance is given by Equation $\ref{F}$ 
 \begin{equation}
@@ -151,6 +151,81 @@ F = \frac{\hat{Y}-Y}{\sum_{i=0}^{N}O\textsubscript{i}} + \alpha\frac{C}{C\textsu
 \end{equation}
 where $\hat{Y}$ is the target variable, $Y$ is the predicted output, $O\textsubscript{i}$ is the number of output classes, $C$ is the network complexity, $C\textsubscript{max}$ is the maximum complexity, $P$ is the fraction of the network pruned, $\alpha$ is the learning rate and $\beta$ is momentum.  Note that since the fitness funciton is directly proportional to the loss, the problem of optimizing the neural network is a minimization problem rather than the usual maximization problem. 
 
+\subsubsection{Markov Chain analysis}
+
+The most common methods for analysing genetic structures include Schema theorem, Price's theorem and building block hypothesis. The methods mentioned provide a good approximation of the genetic model and have been used often. Markov Chain analysis, however replicates an exact model of the genetic structure in a state space diagram. The models so formed provide useful insight about the effect genetic operators have on the transition matrix. The transition matrix is the binary encoded intermediatory representation of the network connections as chromosomes. 
+
+Since binary encoding was employed, the chromosomes are treated as binary strings with each gene representing "no connection" or 0 and "connection" or 1. If $N$ chromosomes of lenth $l$ are generated, the number of possible states are $N+1$. State $i$ is referred to as the state with exactly $i$ ones and $(l - i)$ zeros. The operation of the genetic algorithm is now defined by a $(l + 1)*(l + 1)$ transition matrix $P[i, j]$ that maps the current state $i$ to the next state $j$ . The probability of a transition from state $i$ to state $j$ is given by one
+entry in the matrix $p(ij)$. A smaple markov model for $l$ = 1 and $N$ = 4 is shown in Figure $\ref{part4}$.
+
+\begin{figure}[!b]
+\centerline{\includegraphics[width=85mm]{part4.png}}
+\caption{Markov Analysis}
+\label{part4}
+\end{figure}
+
+If $f\textsubscript{0}$ is the fitness of the chromosome of length $l$ having $i$ zeros,when the connection is severed and $f\textsubscript{1}$ is the fitness of the chromosome when the connection is retained the probability of connection surviving is given by Equation $\ref{prob1}$.
+
+\begin{equation}
+p\textsubscript{1} = \frac{i*f\textsubscript{1}}{i*f\textsubscript{1} + (l-i)*f\textsubscript{0}}
+\label{prob1}
+\end{equation}
+
+And the probability of connection not surviving is given by Equation $\ref{prob2}$.
+
+\begin{equation}
+p\textsubscript{0} = \frac{(l-i)*f\textsubscript{0}}{i*f\textsubscript{1} + (l-i)*f\textsubscript{0}}
+\label{prob2}
+\end{equation}
+
+Hence the probability of transition from state $i$ to $j$ can be written as:
+
+\begin{equation}
+p(i,j) = {l \choose j}(p\textsubscript{1})\textsuperscript{j}(p\textsubscript{0})\textsuperscript{l-j}\\
+\label{prob3}
+\end{equation}
+
+Equation $\ref{prob3}$ completely discribes the transition matrix with no preference for a state( i.e. a population) with all-ones or a state with all-zeros, and the equation reduces to the one for pure genetic drift.
+\begin{algorithm}
+\SetAlgoLined
+Input: Training Set $D$, Fitness threshold $\lambda$, Base model $M$, Maximum Network Depth $max\_depth$, Maximum Nodes $max\_nodes$, Maximum Complexity $C$, Genetic Operators $G$\\
+\KwResult{Optimal Network Configuration is obtained}\
+------------------------------------------------------------
+Initialize $I$ instances of Base Model with single block\;
+Start initial run\;
+\For{Each n in $max\_nodes$}{
+    Develop the network under constraint $C$ and $max\_depth$;
+    \For{Each instance $i$ in $I$}{
+        Store fitness scores in array $scores$[];
+    }
+}
+\For{Each Instance $i$ in $I$}{
+Obtain Network configuration in an intermediate space through binary encoding;
+Obtain $I$ chromosomes;
+\For{Each potential solution chromosome in $I$}{
+Establish a many-to-one relation with $w$ parameter representations\;
+Using $G$ evolve the chromosome\;
+}
+Update $scores$[]\;
+}
+Translate the intermediate state to a binary evaulation tree\;
+\For{Each node $n$ in chromosome $i$}{
+Toggle the connection to the next layer using mutation\;
+\If{Fitness score decreases}{
+Apply Back propogation\;
+Prune( Connection($i_n$) $->$ ($(i+1)_n$) );
+}
+\Else
+{
+\If{Any chromosome $i$ decreases below $\lambda$}
+{break\;}
+\Else
+{continue\;}
+}
+}
+\caption{Co-evolutionary NAS with parameter updation}
+\label{alg1}
+\end{algorithm}
 
 \section{Experimental Results}
 
